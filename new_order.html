@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Order</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="welcome-message">
+            Hi, <span id="username">User</span>
+        </div>
+        <div class="sign-out">
+            <a href="#" id="sign-out-link">Sign Out</a>
+        </div>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <nav class="sidebar">
+        <ul>
+            <li><a href="#" class="menu-item" data-tab="main">Main</a></li>
+            <li><a href="#" id="new-order" class="menu-item" data-tab="new-order">New Order</a></li>
+            <li><a href="#" class="menu-item" data-tab="current-orders">Current Orders</a></li>
+            <li><a href="#" class="menu-item" data-tab="previous-orders">Previous Orders</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="content">
+            <div id="new-order" class="tab-content">
+                <h2>Create New Order</h2>
+                <form id="new-order-form">
+                    <div>
+                        <label for="lab-select">Select Lab:</label>
+                        <select id="lab-select" required>
+                            <option value="">--Select Lab--</option>
+                            <option value="lab1">Lab 1</option>
+                            <option value="lab2">Lab 2</option>
+                            <option value="lab3">Lab 3</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="experiment-name">Experiment Name:</label>
+                        <input type="text" id="experiment-name" required>
+                    </div>
+
+                    <div>
+                        <label for="experiment-procedure">Attach Experiment Procedure:</label>
+                        <input type="file" id="experiment-procedure" required>
+                    </div>
+
+                    <div>
+                        <label for="risk-assessment">Attach Risk Assessment:</label>
+                        <input type="file" id="risk-assessment" required>
+                    </div>
+
+                    <div id="chemicals-container">
+                        <h3>Chemicals</h3>
+                        <button type="button" id="add-chemical-btn">
+                            <span>+</span> Add Chemical
+                        </button>
+                    </div>
+
+                    <button type="submit" id="submit-request-btn">Submit Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

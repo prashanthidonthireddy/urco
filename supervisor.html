@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        
+        <div class="logo">
+            <img src="C:\xampp\htdocs\Dashboards\images\flinderuni_main_logo_black.png" alt="Flinders University Logo" style="height: 50px;">
+        </div>
+
+        <div class="title">
+            <h1>Flinders Chemical Management System</h1>
+        </div>
+
+        <div class="welcome-message">
+            Hi, <span id="username">User</span>
+        </div>
+        <div class="sign-out">
+            <a href="#" id="sign-out-link">Sign Out</a>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="sidebar">
+            <button onclick="showSection('main')">Main</button>
+            <button onclick="showSection('new-order')">New Orders</button>
+            <button onclick="showSection('approved-orders')">Approved Orders</button>
+            <button onclick="showSection('rejected-orders')">Rejected Orders</button>
+            <button onclick="showSection('escalated-orders')">Escalated Orders</button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <div id="main" class="content-section">
+                <h2>Overview</h2>
+                <h3>Recent New Orders</h3>
+                <ul id="recent-current-orders">
+                    <!-- Display up to 3 current orders here -->
+                </ul>
+                <h3>Recent Approved Orders</h3>
+                <ul id="recent-approved-orders">
+                    <!-- Display up to 3 previous orders here -->
+                </ul>
+                <h3>Recent Rejected Orders</h3>
+                <ul id="recent-rejected-orders">
+                    <!-- Display up to 3 previous orders here -->
+                </ul>
+                <h3>Recent Escalated Orders</h3>
+                <ul id="recent-escalated-orders">
+                    <!-- Display up to 3 previous orders here -->
+                </ul>
+            </div>
+
+            <!-- New Orders Tab Content -->
+            <div id="new-order" class="content-section" style="display:none;">
+                <h2>New Orders</h2>
+                <div class="order-item">
+                    <p>Order #1 from Research Member</p>
+                    <button class="approve-btn">Approve</button>
+                    <button class="reject-btn">Reject</button>
+                    <button class="escalate-btn">Escalate</button>
+                </div>
+                <!-- Repeat the order-item div for more orders -->
+            </div>
+
+            <!-- Approved Orders Tab Content -->
+            <div id="approved-orders" class="content-section" style="display:none;">
+                <h2>Approved Orders</h2>
+                <p>List of approved orders.</p>
+                <!-- Approved orders content goes here -->
+            </div>
+
+            <!-- Rejected Orders Tab Content -->
+            <div id="rejected-orders" class="content-section" style="display:none;">
+                <h2>Rejected Orders</h2>
+                <p>List of rejected orders.</p>
+                <!-- Rejected orders content goes here -->
+            </div>
+
+            <!-- Escalated Orders Tab Content -->
+            <div id="escalated-orders" class="content-section" style="display:none;">
+                <h2>Escalated Orders</h2>
+                <p>List of escalated orders.</p>
+                <!-- Escalated orders content goes here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
