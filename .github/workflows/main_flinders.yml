@@ -47,7 +47,7 @@ jobs:
       - name: Zip artifact for deployment
         run: |
           zip -r release.zip . -x "venv/*" "*.git/*"
-
+      
       # Upload the ZIP artifact for the deploy job to use
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -62,7 +62,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write # This is required for requesting the JWT
+      id-token: write  # This is required for requesting the JWT
 
     steps:
       # Download the build artifact created in the previous job
