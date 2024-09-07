@@ -1,3 +1,7 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
+
 name: Build and deploy Python app to Azure Web App - flinders
 
 on:
@@ -32,7 +36,7 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
         
-      # Optional: You can add a step to run tests here (using PyTest, Django test suites, etc.)
+      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       # Uncomment the following lines to run tests if necessary
       # - name: Run tests
       #   run: |
@@ -42,7 +46,7 @@ jobs:
       # Package the app as a ZIP file for deployment
       - name: Zip artifact for deployment
         run: |
-          zip -r release.zip . -x "venv/*" ".*" "*.git*"
+          zip -r release.zip . -x "venv/*" "*.git/*"
 
       # Upload the ZIP artifact for the deploy job to use
       - name: Upload artifact for deployment jobs
@@ -58,7 +62,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write  # This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
 
     steps:
       # Download the build artifact created in the previous job
@@ -75,9 +79,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_981779450F2349E29464DC98C7BBC460 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_DFA28E49C2354221A43CA24B05F7A517 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB0ACDDD79534FFEA1A939ECF683F66C }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       # Deploy the app to Azure Web App using the webapps-deploy action
       - name: 'Deploy to Azure Web App'
