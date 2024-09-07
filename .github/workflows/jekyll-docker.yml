@@ -13,27 +13,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Option 1: Setting proper permissions inside the container
-    - name: Build the site in the Jekyll builder container with fixed permissions
+    # Option 1: Fixing permissions and forcing Jekyll to create cache
+    - name: Build the site with Jekyll in Docker (Fixing Cache Permissions)
       run: |
         docker run \
         -v ${{ github.workspace }}:/srv/jekyll \
         -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-        jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll/.jekyll-cache && jekyll build --future"
+        jekyll/builder:latest /bin/bash -c "mkdir -p /srv/jekyll/.jekyll-cache && chmod -R 777 /srv/jekyll/.jekyll-cache && jekyll build --future"
 
-    # Option 2: Running as the same user as on the host machine
-    # Uncomment this block if you'd like to run the container as a specific user
-    # - name: Build the site in the Jekyll builder container as a specific user
-    #   run: |
-    #     docker run \
-    #     -v ${{ github.workspace }}:/srv/jekyll \
-    #     -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-    #     --user $(id -u):$(id -g) \
-    #     jekyll/builder:latest /bin/bash -c "jekyll build --future"
-
-    # Option 3: Disabling caching to avoid permission issues
-    # Uncomment this block if you'd like to disable Jekyll caching
-    # - name: Build the site in the Jekyll builder container without caching
+    # Option 2: Disabling Jekyll cache to avoid permissions issues
+    # Uncomment if you want to disable the cache instead of setting permissions
+    # - name: Build the site without Jekyll cache
     #   run: |
     #     docker run \
     #     -v ${{ github.workspace }}:/srv/jekyll \
