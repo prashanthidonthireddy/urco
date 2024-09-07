@@ -1,16 +1,7 @@
-﻿asgiref==3.8.1
-Django==4.2.16
+asgiref==3.8.1
+Django==4.2.16  # Use this version only
 sqlparse==0.5.1
 typing_extensions==4.12.2
 tzdata==2024.1
 whitenoise==6.7.0
-Django==4.2  # The latest stable version of Django as of 2024
-djangorestframework==3.14.0  # For building APIs
-psycopg2==2.9.6  # PostgreSQL adapter if using PostgreSQL as your database
-mysqlclient==2.2.0  # If you're using MySQL instead of PostgreSQL
-gunicorn==20.1.0  # WSGI HTTP server for UNIX for deploying Django applications
-whitenoise==6.5.0  # Serve static files in production
-django-environ==0.10.0  # Manage environment variables
-Pillow==10.0.0  # Image handling (for ImageFields in models)
-dj-database-url==1.0.0  # For handling database URLs (useful for deployment)
-django-cors-headers==3.15.0  # Enable CORS (especially for APIs)
+
