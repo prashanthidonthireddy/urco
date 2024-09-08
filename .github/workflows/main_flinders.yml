@@ -56,15 +56,15 @@ jobs:
         run: unzip release.zip
 
       - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          creds: |
-            {
-              "clientId": "f0d215ca-40fa-4d00-a72f-3f19b2004281",
-              "clientSecret": "bXm8Q~yJ5M_B2MLqi1OAUh1QuZnrYRaNmXXKCcGk",
-              "subscriptionId": "656447be-e805-46a4-9627-46d7fe4af3b5",
-              "tenantId": "5589cc56-2c7f-4502-899d-f7eb759d75bc"
-            }
+  uses: azure/login@v2
+  with:
+    creds: |
+      {
+        "clientId": "ffaaf0fc-3b0c-4df8-9fbf-3640faf077f4",
+        "clientSecret": "2AB8Q~fjlpt4ceBwQpZ1WnHo-QypJRK2NuvbAch7",
+        "subscriptionId": "656447be-e805-46a4-9627-46d7fe4af3b5",
+        "tenantId": "5589cc56-2c7f-4502-899d-f7eb759d75bc"
+      }
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
