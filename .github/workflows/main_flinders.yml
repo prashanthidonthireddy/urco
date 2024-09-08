@@ -1,3 +1,7 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
+
 name: Build and deploy Python app to Azure Web App - flinders
 
 on:
@@ -11,46 +15,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository's code
       - uses: actions/checkout@v4
 
-      # Set up Python version (using Python 3.12 as specified)
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      # Create and activate a virtual environment
       - name: Create and start virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
       
-      # Install the dependencies from requirements.txt
       - name: Install dependencies
-        run: |
-          source venv/bin/activate
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
-      # Uncomment the following lines to run tests if necessary
-      # - name: Run tests
-      #   run: |
-      #     source venv/bin/activate
-      #     python manage.py test
 
-      # Package the app as a ZIP file for deployment
       - name: Zip artifact for deployment
-        run: |
-          zip -r release.zip . -x "venv/*" "*.git/*"
-      
-      # Upload the ZIP artifact for the deploy job to use
+        run: zip release.zip ./* -r
+
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: release.zip
-
+          path: |
+            release.zip
+            !venv/
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -58,29 +49,28 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write  # This is required for requesting the JWT
+      id-token: write #This is required for requesting the JWT
 
     steps:
-      # Download the build artifact created in the previous job
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: python-app
 
-      # Unzip the artifact for deployment
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      # Login to Azure using the secrets stored in GitHub Secrets
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_34E77BF8532D4E83B1FD1C7733A9D833 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4AF3BD0852154AA79DF50C1017DC9DCD }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B8216CF0B90F4B718DF5AA3DF3C65739 }}
 
-      # Deploy the app to Azure Web App using the webapps-deploy action
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
         with:
           app-name: 'flinders'
           slot-name: 'Production'
-          package: 'release.zip'
