@@ -8,13 +8,24 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Build the site in the jekyll/builder container
+
+    # Option 1: Fixing permissions and forcing Jekyll to create cache
+    - name: Build the site with Jekyll in Docker (Fixing Cache Permissions)
       run: |
         docker run \
-        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-        jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll && jekyll build --future"
+        -v ${{ github.workspace }}:/srv/jekyll \
+        -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
+        jekyll/builder:latest /bin/bash -c "mkdir -p /srv/jekyll/.jekyll-cache && chmod -R 777 /srv/jekyll/.jekyll-cache && jekyll build --future"
+
+    # Option 2: Disabling Jekyll cache to avoid permissions issues
+    # Uncomment if you want to disable the cache instead of setting permissions
+    # - name: Build the site without Jekyll cache
+    #   run: |
+    #     docker run \
+    #     -v ${{ github.workspace }}:/srv/jekyll \
+    #     -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
+    #     jekyll/builder:latest /bin/bash -c "jekyll build --no-cache --future"

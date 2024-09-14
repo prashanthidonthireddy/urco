@@ -1,7 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-# More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
-
 name: Build and deploy Python app to Azure Web App - flinders
 
 on:
@@ -15,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python version
         uses: actions/setup-python@v5
@@ -26,11 +23,9 @@ jobs:
         run: |
           python -m venv venv
           source venv/bin/activate
-      
+
       - name: Install dependencies
         run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -49,8 +44,6 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -61,18 +54,20 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_34E77BF8532D4E83B1FD1C7733A9D833 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4AF3BD0852154AA79DF50C1017DC9DCD }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B8216CF0B90F4B718DF5AA3DF3C65739 }}
+          creds: |
+            {
+              "clientId": "ffaaf0fc-3b0c-4df8-9fbf-3640faf077f4",
+              "clientSecret": "2AB8Q~fjlpt4ceBwQpZ1WnHo-QypJRK2NuvbAch7",
+              "subscriptionId": "656447be-e805-46a4-9627-46d7fe4af3b5",
+              "tenantId": "5589cc56-2c7f-4502-899d-f7eb759d75bc"
+            }
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'flinders'
           slot-name: 'Production'
-          
