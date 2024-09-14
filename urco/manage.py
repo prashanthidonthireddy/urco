@@ -6,7 +6,11 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'urco.settings')
+    if os.getenv('DJANGO_ENV') == 'production':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'urco.urco.settings')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'urco.settings')
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
