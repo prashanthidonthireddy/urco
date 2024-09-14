@@ -30,3 +30,4 @@ jobs:
         DJANGO_SETTINGS_MODULE: urco.settings
       run: |
         python manage.py test
+      working-directory: urco
