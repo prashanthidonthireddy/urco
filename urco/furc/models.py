@@ -1,62 +1,45 @@
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
-
-
-USER_ROLES = {
-    ('Admin', 'Admin'),
-    ('Research Staff Member', 'Research Staff Member'),
-    ('Supervisor', 'Supervisor'),
-    ('Higher Approver', 'Higher Approver'),
-    ('Order Manager', 'Order Manager'),
-    ('Stock Manager', 'Stock Manager')
-}
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 class UserRole(models.Model):
-    role_id = models.IntegerField(default=0)
-    role_name = models.CharField(choices=USER_ROLES, max_length=100, default="Research Staff Member")
+    role_id = models.IntegerField(primary_key=True)
+    user_role = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.role_name
+        return self.user_role
 
-class MyUserManager(BaseUserManager):
-    def create_user(self, username, password=None, role=None):
-        if not username:
-            raise ValueError('The Username field is required')
-        if not role:
-            raise ValueError('The Role field is required')
-
-        user = self.model(username=username, role=role)
+class CustomUserManager(BaseUserManager):
+    def create_user(self, user_name, password=None, **extra_fields):
+        if not user_name:
+            raise ValueError('The Username field must be set')
+        if 'role' not in extra_fields:
+            # Set a default role if not provided
+            extra_fields['role'] = UserRole.objects.get(user_role='Admin')
+        user = self.model(user_name=user_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, password=None, role=None):
-        user = self.create_user(username, password, role)
-        user.is_admin = True
-        user.is_staff = True  # Make superusers staff as well
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
+    def create_superuser(self, user_name, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        if 'role' not in extra_fields:
+            # Set a default role for superuser
+            extra_fields['role'] = UserRole.objects.get(user_role='Admin')
+        return self.create_user(user_name, password, **extra_fields)
 
-class MyUser(AbstractBaseUser):
-    username = models.CharField(max_length=255, unique=True)
-    role = models.ForeignKey(UserRole, on_delete=models.CASCADE)
+class User(AbstractBaseUser, PermissionsMixin):
+    user_name = models.CharField(max_length=255, unique=True, primary_key=True)
+    role = models.ForeignKey(UserRole, on_delete=models.CASCADE, to_field='role_id')
+    password = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)  # Add this field
-    is_superuser = models.BooleanField(default=False)  # Add this field for admin permissions
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
-    objects = MyUserManager()
+    objects = CustomUserManager()
 
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['role']
+    USERNAME_FIELD = 'user_name'
+    REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.username
-
-    def has_perm(self, perm, obj=None):
-        return self.is_admin
-
-    def has_module_perms(self, app_label):
-        return self.is_admin
-
+        return self.user_name
