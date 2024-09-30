@@ -1,16 +1,16 @@
 
 /*Major issue in this section_Not working*/
 // Handle tab navigation
-function showSection(sectionId) {
-    // Hide all sections
-    var sections = document.getElementsByClassName('content-section');
-    for (var i = 0; i < sections.length; i++) {
-        sections[i].style.display = 'none';
-    }
-
-    // Show the selected section
-    document.getElementById(sectionId).style.display = 'block';
-}
+//function showSection(sectionId) {
+//    // Hide all sections
+//    var sections = document.getElementsByClassName('content-section');
+//    for (var i = 0; i < sections.length; i++) {
+//        sections[i].style.display = 'none';
+//    }
+//
+//    // Show the selected section
+//    document.getElementById(sectionId).style.display = 'block';
+//}
 
 // Handle Add Chemical functionality
 //document.getElementById('add-chemical-btn').addEventListener('click', function() {

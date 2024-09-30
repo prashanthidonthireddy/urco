@@ -1,4 +1,6 @@
 import uuid
+from email.policy import default
+
 from django.utils import timezone
 from random import random
 
@@ -98,11 +100,16 @@ class RiskCategory(models.Model):
     def __str__(self):
         return f'{self.risk_category_id} - {self.risk_category}'
 
+UNIT_OF_MEASUREMENT = {
+    ('ml', 'ml'),
+    ('g', 'g')
+}
 class Chemical(models.Model):
     chemical_id = models.CharField(primary_key=True, max_length=10)
     common_name = models.CharField(max_length=50)
     systematic_name = models.CharField(max_length=50)
     risk_category = models.ForeignKey(RiskCategory, on_delete=models.CASCADE)
+    uom = models.CharField(max_length=20, choices=UNIT_OF_MEASUREMENT, default='g', null=False)
 
     def __str__(self):
         return f'{self.chemical_id} - {self.common_name}'
@@ -122,14 +129,40 @@ ORDER_STATUS = {
     ('rejected', 'rejected')
 }
 
+def custom_file_upload_path_exp(instance, filename):
+    # Extract file extension
+    base_filename, file_extension = os.path.splitext(filename)
+
+    # Assuming instance has an `orderId` field
+    order_id = instance.orderId
+
+    # Create the new filename with orderId prefix
+    new_filename = f"{order_id}_{now().strftime('%Y%m%d_%H%M%S')}{file_extension}"
+
+    # Save file to the 'uploads/orders/' folder in MEDIA_ROOT
+    return f"order/exp_procedure/{new_filename}"
+
+def custom_file_upload_path_risk(instance, filename):
+    # Extract file extension
+    base_filename, file_extension = os.path.splitext(filename)
+
+    # Assuming instance has an `orderId` field
+    order_id = instance.orderId
+
+    # Create the new filename with orderId prefix
+    new_filename = f"{order_id}_{now().strftime('%Y%m%d_%H%M%S')}{file_extension}"
+
+    # Save file to the 'uploads/orders/' folder in MEDIA_ROOT
+    return f"order/risk_procedure/{new_filename}"
+
 class Order(models.Model):
     order_id = models.CharField(primary_key=True, max_length=10)
     exp_name = models.CharField(max_length=100)
     lab_id = models.ForeignKey(Laboratory, on_delete=models.CASCADE)
-    exp_procedure = models.FileField(upload_to= 'order/exp_procedure')
-    risk_assessment = models.FileField(upload_to= 'order/risk_assessment')
+    exp_procedure = models.FileField(upload_to= custom_file_upload_path_exp)
+    risk_assessment = models.FileField(upload_to= custom_file_upload_path_risk)
     order_date = models.DateField(editable=False, auto_now_add=True)
-    updated_date = models.DateField(default=None)
+    updated_date = models.DateField(default=None, null=True)
     order_status = models.CharField(max_length=30, choices=ORDER_STATUS, default='Requested')
     def __str__(self):
         return self.order_id

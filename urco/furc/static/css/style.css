@@ -104,6 +104,11 @@ button:hover {
     
 }
 
+.sidebar a {
+    text-decoration:none;
+    color: antiquewhite;
+}
+
 .sidebar ul {
     list-style-type: none;
     padding: 0;

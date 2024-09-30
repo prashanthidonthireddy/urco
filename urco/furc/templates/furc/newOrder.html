@@ -1,0 +1,285 @@
+<!DOCTYPE html> {% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Staff Member Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+    </style>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script>
+        let chemicals = [];
+
+        function openChemicalModal() {
+            document.getElementById("chemicalModal").style.display = "block";
+        }
+
+        function closeChemicalModal() {
+            document.getElementById("chemicalModal").style.display = "none";
+        }
+
+        function validateChemicalForm() {
+            const chemicalName = document.getElementById('chem-name').value;
+            const quantity = document.getElementById('quantity').value;
+
+            if (!chemicalName || !quantity) {
+                return false;
+            }
+            return true;
+        }
+
+        function addChemical() {
+            // Validate form inputs
+            if (!validateChemicalForm()) {
+                alert('Please fill out all fields before adding a chemical.');
+                return;
+            }
+
+            // Get form values
+            const chemicalName = document.getElementById('chem-name').value;
+            const quantity = document.getElementById('quantity').value;
+
+            // Create a chemical object
+            const chemical = {
+                chemicalName: chemicalName,
+                quantity: quantity
+            };
+
+            // Add to chemicals array
+            chemicals.push(chemical);
+
+            // Add to the table
+            const table = document.getElementById('customers');
+            const newRow = table.insertRow();
+            newRow.insertCell(0).innerHTML = chemicalName;
+            newRow.insertCell(1).innerHTML = quantity;
+
+            // Add hidden inputs to the form for each chemical
+            const form = document.getElementById('new-order-form');
+            const chemicalInput = document.createElement('input');
+            chemicalInput.type = 'hidden';
+            chemicalInput.name = 'chemicalName[]';
+            chemicalInput.value = chemicalName;
+            form.appendChild(chemicalInput);
+
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'hidden';
+            quantityInput.name = 'quantity[]';
+            quantityInput.value = quantity;
+            form.appendChild(quantityInput);
+
+            // Reset form
+            document.getElementById('chem-name').value = '';
+            document.getElementById('quantity').value = '';
+
+            // Close modal
+            closeChemicalModal();
+        }
+
+        $('#myModal').on('shown.bs.modal', function () {
+            $('#chem-name').focus();
+        });
+
+        // On form submission, send the chemicals array as part of the form data
+        function submitForm(event) {
+            // Check if the modal is still open
+            const modal = document.getElementById("chemicalModal");
+            if (modal.style.display === "block") {
+                event.preventDefault(); // Prevent form submission
+                alert('Please close the modal before submitting.');
+                return;
+            }
+
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'chemicals';
+            hiddenInput.value = JSON.stringify(chemicals);
+            document.getElementById('new-order-form').appendChild(hiddenInput);
+        }
+
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById("chemicalModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</head>
+
+<body>
+    {% for message in messages %}
+
+    <div class="alert-bar">
+        <span class="alert-message">{{message}}</span>
+        <button class="close-btn" onclick="closeAlert()">x</button>
+    </div>
+    {% endfor %}
+    <header class="header">
+        <div class="logo">
+            <img src="{% static 'images/flinder-logo_white.png' %}" alt="Flinders University Logo" style="height: 50px;">
+        </div>
+        <div class="title">
+            <p class="headerTitle">Flinders Chemical Management System</p>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="welcome-message">
+            Hi, <span id="username">{{request.user}}</span>
+        </div>
+        <div class="sign-out">
+            <a href="/logout/" id="sign-out-link">Sign Out</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="container">
+
+        <div class="sidebar">
+            <button><a href="/researchStaff/">Main</a></button>
+            <button><a href="/new_order/">New Order</a></button>
+            <button><a href="/current_order/">Current Orders</a></button>
+            <button><a href="/previous_order/">Previous Orders</a></button>
+        </div>
+        <div class="content">
+            <div id="new-order" class="content-section">
+                <h2>Create New Order</h2>
+                <form id="new-order-form" action="/addOrder/" method="POST" onsubmit="submitForm(event)">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="lab-select">Select Lab:</label>
+                        <select id="lab-select" name="lab" required>
+                            <option value="">--Select Lab--</option>
+                            <option value="L0001">Lab 1</option>
+                            <option value="L0002">Lab 2</option>
+                            <option value="L0003">Lab 3</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experiment-name">Experiment Name:</label>
+                        <input type="text" name="expName" id="experiment-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experiment-procedure">Attach Experiment Procedure:</label>
+                        <input type="file" name="expProcedure" id="experiment-procedure" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="risk-assessment">Attach Risk Assessment:</label>
+                        <input type="file" name="riskAssessment" id="risk-assessment" required>
+                    </div>
+
+                    <div class="form-group" id="chemicalList" style="margin-top: 10px;">
+                        <label for="chemical-list">Chemicals:</label>
+                        <table id="customers">
+                            <tr>
+                                <th>Chemical Name</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </table>
+
+                        <button type="button" id="addChemBtn" onclick="openChemicalModal()" style="margin-top: 10px;">Add More Chemical</button>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" id="submit-request-btn" style="background-color: #ff9146;">Submit Request</button>
+                    </div>
+
+                    <!-- The Modal -->
+                    <div id="chemicalModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeChemicalModal()">&times;</span>
+                            <h2>Add Chemical</h2>
+                            <div class="form-group">
+                                <label for="chem-name">Select Chemical:</label>
+                                <select id="chem-name" name="chemicalName">
+                                    <option value="" disabled selected>--Select Chemical--</option>
+                                    <option value="C00001">Sodium</option>
+                                    <option value="C00002">Water</option>
+                                    <option value="C00003">Hydrogen Peroxide</option>
+                                    <option value="C00004">Acetic Acid</option>
+                                    <option value="C00005">Caustic Soda</option>
+                                    <option value="C00006">Sulfuric Acid</option>
+                                    <option value="C00007">Aluminic acid</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" id="quantity" name="quantity">
+                            </div>
+                            <div class="form-group">
+                                <button type="button" onclick="addChemical()" style="background-color: #04AA6D;">Add Chemical</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
