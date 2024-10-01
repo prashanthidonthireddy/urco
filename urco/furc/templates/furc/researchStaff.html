@@ -44,22 +44,22 @@
             cursor: pointer;
         }
 
-        #customers {
+        .chems {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
 
-#customers td, #customers th {
+.chems td, .chems th {
   border: 1px solid #ddd;
   padding: 8px;
 }
 
-#customers tr:nth-child(even){background-color: #f2f2f2;}
+.chems tr:nth-child(even){background-color: #f2f2f2;}
 
-#customers tr:hover {background-color: #ddd;}
+.chems tr:hover {background-color: #ddd;}
 
-#customers th {
+.chems th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
@@ -122,149 +122,47 @@
             <div id="main" class="content-section">
                 <h2>Overview</h2>
                 <h3>Recent Current Orders</h3>
-                <ul id="recent-current-orders">
-                    <!-- Display up to 3 current orders here -->
-                </ul>
-                <h3>Recent Previous Orders</h3>
-                <ul id="recent-previous-orders">
-                    <!-- Display up to 3 previous orders here -->
-                </ul>
-            </div>
-
-            <div id="new-order" class="content-section" style="display:none;">
-                <h2>Create New Order</h2>
-                <form id="new-order-form" action="/newOrder/" method="POST">
-                    <div class="form-group">
-                        <label for="lab-select">Select Lab:</label>
-                        <select id="lab-select" name="lab" required>
-                            <option value="">--Select Lab--</option>
-                            <option value="lab1">Lab 1</option>
-                            <option value="lab2">Lab 2</option>
-                            <option value="lab3">Lab 3</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="experiment-name">Experiment Name:</label>
-                        <input type="text" name="expName" id="experiment-name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="experiment-procedure">Attach Experiment Procedure:</label>
-                        <input type="file" name="expProcedure" id="experiment-procedure" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="risk-assessment">Attach Risk Assessment:</label>
-                        <input type="file" name="riskAssessment" id="risk-assessment" required>
-                    </div>
-                    <div class="form-group" id="chemicalList" style="margin-top: 10px;">
-                        <label for="chemical-list">Chemicals:</label>
-                        <!--                        <input type="text" name="chemical" id="chemical" required>-->
-                        <table id="customers" style="border-radius:20px;">
+                <table id="customer-1" class="chems" style="border-radius:20px;">
                             <tr>
-                                <th>Chemical Name</th>
-                                <th>Systematic Name</th>
-                                <th>Risk Category</th>
-                                <th>Quantity</th>
+                                <th>Order Id:</th>
+                                <th>Exp. Name</th>
+                                <th>Lab</th>
+                                <th>Date</th>
+                                <th>status</th>
                             </tr>
+                    {% for item in current_order %}
                             <tr>
-                                <td>Sodium</td>
-                                <td>Sodium</td>
-                                <td>5</td>
-                                <td>50 ml</td>
+                                <td>{{item.order_id}}</td>
+                                <td>{{item.exp_name}}</td>
+                                <td>{{item.lab_id}}</td>
+                                <td>{{item.order_date}}</td>
+                                <td>{{item.order_status}}</td>
                             </tr>
-                            <tr>
-                                <td>Caustic Soda</td>
-                                <td>Sodium hydroxide</td>
-                                <td>3</td>
-                                <td>30 ml</td>
-                            </tr>
+                    {% endfor %}
                         </table>
 
-                        <!--                        <button type="button" id="addChemBtn" style="margin-top: 10px;">Add More chemical</button>-->
-                        <button type="button" id="addChemBtn" onclick="openChemicalModal()" style="margin-top: 10px;">Add More Chemical</button>
-                    </div>
-
-
-                    <!--                    <div class="chemical-form" id="chemicals">-->
-                    <!--                        <label for="chemical-name">Chemical Name:</label>-->
-                    <!--                        <select name="chemical_name[]" required>-->
-                    <!--                            <option value="">&#45;&#45;Select Chemical&#45;&#45;</option>-->
-                    <!--                            <option value="chemical1">Chemical 1</option>-->
-                    <!--                            <option value="chemical2">Chemical 2</option>-->
-                    <!--                            <option value="chemical3">Chemical 3</option>-->
-                    <!--                        </select>-->
-
-                    <!--                        <label for="scientific-name">Scientific Name:</label>-->
-                    <!--                        <select name="scientific_name[]" required>-->
-                    <!--                            <option value="">&#45;&#45;Select Scientific Name&#45;&#45;</option>-->
-                    <!--                            <option value="scientific1">Scientific 1</option>-->
-                    <!--                            <option value="scientific2">Scientific 2</option>-->
-                    <!--                            <option value="scientific3">Scientific 3</option>-->
-                    <!--                        </select>-->
-
-                    <!--                        <label for="quantity">Quantity:</label>-->
-                    <!--                        <input type="number" name="quantity[]" required>-->
-
-                    <!--                        <label for="measurement">Measurement:</label>-->
-                    <!--                        <select name="measurement[]" required>-->
-                    <!--                            <option value="ml">ml</option>-->
-                    <!--                            <option value="gm">gm</option>-->
-                    <!--                        </select>-->
-
-                    <!--                        <button type="button" class="remove-chemical-btn">Remove</button>-->
-                    <!--                        <button type="button" id="addChemBtn">Add Another Phone</button>-->
-                    <!--                    </div>-->
-
-                    <div class="form-group">
-                        <button type="submit" id="submit-request-btn" style="background-color: #ff9146;">Submit Request</button>
-                    </div>
-
-                    <div id="chemicalModal" class="modal">
-                        <div class="modal-content">
-                            <span class="close" onclick="closeChemicalModal()">&times;</span>
-                            <h2>Add Chemical</h2>
-                            <form action="addChemicals" method="post" id="chemical-form">
-                                <div class="form-group">
-                                    <label for="chem-name">Chemical Name:</label>
-                                    <input type="text" id="chem-name" name="chemicalName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="sys-name">Systematic Name:</label>
-                                    <input type="text" id="sys-name" name="systematicName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="risk-category">Risk Category:</label>
-                                    <input type="number" id="risk-category" name="riskCategory" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="quantity">Quantity:</label>
-                                    <input type="text" id="quantity" name="quantity" required>
-                                </div>
-                                <div class="form-group">
-                                    <button type="submit" style="background-color: #018c59;">Add Chemical</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                </form>
+                <h3>Recent Previous Orders</h3>
+                <table id="customers-2" class="chems" style="border-radius:20px;">
+                            <tr>
+                                <th>Order Id:</th>
+                                <th>Exp. Name</th>
+                                <th>Lab</th>
+                                <th>Date</th>
+                                <th>status</th>
+                            </tr>
+                    {% for item in previous_order %}
+                            <tr>
+                                <td>{{item.order_id}}</td>
+                                <td>{{item.exp_name}}</td>
+                                <td>{{item.lab_id}}</td>
+                                <td>{{item.order_date}}</td>
+                                <td>{{item.order_status}}</td>
+                            </tr>
+                    {% endfor %}
+                        </table>
             </div>
-            <div id="current-orders" class="content-section" style="display:none;">
-                <h2>Current Orders</h2>
-                <ul id="current-orders-list">
-                    <h3>Current orders will be displayed here</h3>
-                    <!-- Current orders will be displayed here -->
-                </ul>
-            </div>
-            <div id="previous-orders" class="content-section" style="display:none;">
-                <h2>Previous Orders</h2>
-                <ul id="previous-orders-list">
-                    <h3>Previous orders will be displayed here</h3>
-                    <!-- Previous orders will be displayed here -->
-                </ul>
-            </div>
+
+
         </div>
     </div>
     <script>

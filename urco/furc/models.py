@@ -3,7 +3,8 @@ from email.policy import default
 
 from django.utils import timezone
 from random import random
-
+from datetime import datetime
+import os
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.contenttypes.models import ContentType
@@ -126,7 +127,8 @@ ORDER_STATUS = {
     ('Stored', 'Stored'),
     ('Delivered', 'Delivered'),
     ('Closed', 'Closed'),
-    ('rejected', 'rejected')
+    ('Rejected by supervisor', 'Rejected by supervisor'),
+    ('Rejected by higher', 'Rejected by higher')
 }
 
 def custom_file_upload_path_exp(instance, filename):
@@ -134,10 +136,10 @@ def custom_file_upload_path_exp(instance, filename):
     base_filename, file_extension = os.path.splitext(filename)
 
     # Assuming instance has an `orderId` field
-    order_id = instance.orderId
-
+    order_id = instance.order_id
+    now = datetime.now()
     # Create the new filename with orderId prefix
-    new_filename = f"{order_id}_{now().strftime('%Y%m%d_%H%M%S')}{file_extension}"
+    new_filename = f"{order_id}_{now.strftime('%Y%m%d_%H%M%S')}{file_extension}"
 
     # Save file to the 'uploads/orders/' folder in MEDIA_ROOT
     return f"order/exp_procedure/{new_filename}"
@@ -147,13 +149,13 @@ def custom_file_upload_path_risk(instance, filename):
     base_filename, file_extension = os.path.splitext(filename)
 
     # Assuming instance has an `orderId` field
-    order_id = instance.orderId
-
+    order_id = instance.order_id
+    now = datetime.now()
     # Create the new filename with orderId prefix
-    new_filename = f"{order_id}_{now().strftime('%Y%m%d_%H%M%S')}{file_extension}"
+    new_filename = f"{order_id}_{now.strftime('%Y%m%d_%H%M%S')}{file_extension}"
 
     # Save file to the 'uploads/orders/' folder in MEDIA_ROOT
-    return f"order/risk_procedure/{new_filename}"
+    return f"order/risk_assessment/{new_filename}"
 
 class Order(models.Model):
     order_id = models.CharField(primary_key=True, max_length=10)

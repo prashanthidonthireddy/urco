@@ -15,5 +15,9 @@ urlpatterns = [
     path('new_order/', views.newOrder, name='newOrder'),
     path('current_order/', views.currentOrder, name='currentOrder'),
     path('previous_order/', views.previousOrder, name='previousOrder'),
-    path('addOrder/', views.addOrder, name='addOrder')
+    path('addOrder/', views.addOrder, name='addOrder'),
+    path('orderStatusUpdate/', views.orderStatusUpdate, name='orderStatusUpdate')
+    # path('s_pending_order/', views.superPendingOrder, name='superPendingOrder'),
+    # path('addOrder/', views.addOrder, name='addOrder'),
+    # path('addOrder/', views.addOrder, name='addOrder'),
 ]

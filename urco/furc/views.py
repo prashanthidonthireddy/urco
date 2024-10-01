@@ -1,9 +1,11 @@
+from datetime import timezone, datetime
 from lib2to3.fixes.fix_input import context
 
+import dateutil.utils
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, request
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import json
@@ -70,7 +72,6 @@ def signUp(request):
     if request.method == 'POST':
         username = request.POST['username']
         userRole = request.POST['userRole']
-        print(userRole)
         password1 = request.POST['pass1']
         password2 = request.POST['pass2']
         role = UserRole.objects.get(role_id=userRole)
@@ -112,25 +113,46 @@ def loggedOut(request):
     return redirect('/')
 
 def researchStaff(request):
-    return render(request, 'furc/researchStaff.html/')
+    context={'order_status':'Closed', 'order_status':'Rejected by higher', 'order_status':'Rejected by supervisor'}
+    current_order = Order.objects.all().exclude(order_status='Closed').exclude(order_status='Rejected by supervisor').exclude(order_status='Rejected by higher').order_by('-order_date')[0:3]
+    previous_order = Order.objects.filter(**context).order_by('-order_date')[0:3]
+    params={'current_order':current_order, 'previous_order': previous_order}
+    return render(request, 'furc/researchStaff.html/', params)
 
 def supervisor(request):
-    return render(request, 'furc/researchStaff.html/')
+    top_pending_order = Order.objects.filter(order_status='Pending approval').order_by('-order_date')[0:3]
+    top_approved_order = Order.objects.filter(order_status='Approved by supervisor').order_by('-order_date')[0:3]
+    top_rejected_order = Order.objects.filter(order_status='Rejected by supervisor').order_by('-order_date')[0:3]
+    top_escalated_order = Order.objects.filter(order_status='Pending higher approval').order_by('-order_date')[0:3]
+    pending_order = Order.objects.filter(order_status='Pending approval')
+    approved_order = Order.objects.filter(order_status='Approved by supervisor')
+    rejected_order = Order.objects.filter(order_status='Rejected by supervisor')
+    escalated_order = Order.objects.filter(order_status='Pending higher approval')
+    params = {'pending_order':pending_order, 'approved_order':approved_order, 'rejected_order':rejected_order, 'escalated_order':escalated_order, 'top_pending_order':top_pending_order, 'top_approved_order': top_approved_order, 'top_rejected_order': top_rejected_order, 'top_escalated_order': top_escalated_order}
+    return render(request, 'furc/supervisor.html/', params)
 
 def highApprover(request):
-    return None
+    top_pending_order = Order.objects.filter(order_status='Pending higher approval').order_by('-order_date')[0:3]
+    top_approved_order = Order.objects.filter(order_status='Approved by higher').order_by('-order_date')[0:3]
+    top_rejected_order = Order.objects.filter(order_status='Rejected by higher').order_by('-order_date')[0:3]
+    pending_order = Order.objects.filter(order_status='Pending higher approval')
+    approved_order = Order.objects.filter(order_status='Approved by higher')
+    rejected_order = Order.objects.filter(order_status='Rejected by higher')
+    params = {'pending_order':pending_order, 'approved_order':approved_order, 'rejected_order':rejected_order}
+    return render(request, 'furc/higherApprover.html/', params)
 
 def newOrder(request):
     return render(request, 'furc/newOrder.html')
 
 def currentOrder(request):
-    current_order = Order.objects.filter(order_status='Pending approval')
+    current_order = Order.objects.all().exclude(order_status='Closed').exclude(order_status='Rejected by supervisor').exclude(order_status='Rejected by higher').order_by('-order_date')
     params = {'orders':current_order}
     return render(request, 'furc/current_order.html', params)
 
 def previousOrder(request):
-    previous_order = Order.objects.filter(order_status='Approved by supervisor')
-    print(previous_order)
+    context={'order_status':'Closed', 'order_status':'Rejected by higher', 'order_status':'Rejected by supervisor'}
+    # previous_order = Order.objects.filter(order_status='Closed')
+    previous_order = Order.objects.filter(**context)
     params = {'orders': previous_order}
     return render(request, 'furc/previous_order.html', params)
 
@@ -168,3 +190,37 @@ def addOrder(request):
             order_item.save()
         messages.info(request, 'Your order has been sent for approval.')
         return redirect('currentOrder')
+
+def orderStatusUpdate(request):
+    user = request.user
+    if request.method == 'POST':
+        if user.role.user_role=='Supervisor':
+            order_id = request.POST['order_id']
+            update = request.POST['status']
+            order = Order.objects.get(order_id = order_id)
+            if update=='Approve':
+                messages.info(request, ' Order is approved')
+                order.order_status='Approved by supervisor'
+            elif update=='Reject':
+                messages.info(request, ' Order is rejected')
+                order.order_status='Rejected by supervisor'
+            elif update=='Escalate':
+                messages.info(request, ' Order is sent for higher approval')
+                order.order_status='Pending higher approval'
+            order.updated_date = dateutil.utils.today()
+            order.save()
+            return redirect('supervisor')
+        elif user.role.user_role=='Higher Approver':
+            order_id = request.POST['order_id']
+            update = request.POST['status']
+            order = Order.objects.get(order_id=order_id)
+            if update == 'Approve':
+                messages.info(request, ' Order is approved')
+                order.order_status = 'Approved by higher'
+            elif update == 'Reject':
+                messages.info(request, ' Order is rejected')
+                order.order_status = 'Rejected by higher'
+            order.updated_date = dateutil.utils.today()
+            order.save()
+            return redirect('highApprover')
+    return HttpResponse('404-Error')
