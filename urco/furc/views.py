@@ -224,3 +224,12 @@ def orderStatusUpdate(request):
             order.save()
             return redirect('highApprover')
     return HttpResponse('404-Error')
+
+def orderView(request, order_id):
+    order = Order.objects.get(order_id=order_id)
+    order_item = OrderItem.objects.filter(order_id=order)
+    order_items = []
+    for i in order_item:
+        order_items.append(i)
+    params = {'order': order, 'order_items': order_items}
+    return render(request, 'furc/order_det.html', params)

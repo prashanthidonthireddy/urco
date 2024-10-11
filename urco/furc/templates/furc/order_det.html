@@ -59,16 +59,23 @@
 
 #customers tr:hover {background-color: #ddd;}
 
-#customers th {
+.chemicals th {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
   background-color: #04AA6D;
   color: white;
 }
-        .orderidLink{
+        .link{
         text-decoration: none;
-        color: blueviolet;;
+        color: #0f64c1;;
+        }
+        .link:hover{
+            color:cadetblue;
+        }
+        .order_details{
+        color: #0f64c1;
+    font-weight: bold;
         }
     </style>
     <script src="{% static 'js/app.js' %}"></script>
@@ -87,6 +94,7 @@
             }
     </script>
 </head>
+
 
 <body>
     {% for message in messages %}
@@ -123,29 +131,46 @@
             <button><a href="/previous_order/">Previous Orders</a></button>
         </div>
         <div class="content">
-            <div id="current-orders" class="content-section">
-                <h2>Current Orders</h2>
-                <table id="customers" style="border-radius:20px;">
+            <div class="order-details-container">
+                <h2>Order Details</h2>
+                <div class="details">
+                <div><strong>Order ID:</strong> <span class="order_details" id="order-id">{{order.order_id}}</span></div>
+                <div><strong>Experiment Name:</strong> <span class="order_details" id="experiment-name">{{order.exp_name}}</span></div>
+                <div><strong>Lab ID:</strong> <span class="order_details" id="lab-id">{{order.lab_id}}</span></div>
+                <div><strong>Order Date:</strong>  <span class="order_details" id="order-date">{{order.order_date}}</span></div>
+                <div><strong>Updated Date:</strong> <span class="order_details" id="updated-date">{{order.updated_date}} </span></div>
+                <div><strong>Order Status:</strong> <span class="order_details" id="order-status">{{order.order_status}}</span></div>
+                <div><strong>Experiment File:</strong> <a class="link" href="{{order.exp_procedure.url}}" id="experiment-file" download>Download File</a></div>
+                <div><strong>Risk Assessment File:</strong> <a class="link" href="{{order.risk_assessment.url}}" id="risk-assessment-file" download>Download File</a></div>
+                </div>
+                <div class="chemicals">
+                <h3>Chemicals</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Chemical ID</th>
+                        <th>Chemical Name</th>
+                        <th>Systematic Name</th>
+                        <th>Quantity</th>
+                        <th>Risk Category</th>
+                    </tr>
+                    </thead>
+                    <tbody id="chemical-list">
+{% for item in order_items %}
                             <tr>
-                                <th>Order Id:</th>
-                                <th>Exp. Name</th>
-                                <th>Lab</th>
-                                <th>Date</th>
-                                <th>status</th>
-                            </tr>
-                    {% for item in orders %}
-                            <tr>
-                                <td><a class="orderidLink" href="/orderView/{{item.order_id}}">{{item.order_id}}</a></td>
-                                <td>{{item.exp_name}}</td>
-                                <td>{{item.lab_id}}</td>
-                                <td>{{item.order_date}}</td>
-                                <td>{{item.order_status}}</td>
+                                <td>{{item.chemical_id.chemical_id}}</td>
+                                <td>{{item.chemical_id.common_name}}</td>
+                                <td>{{item.chemical_id.systematic_name}}</td>
+                                <td>{{item.required_amount}}&ensp;{{item.chemical_id.uom}}</td>
+                                <td>{{item.chemical_id.risk_category}}</td>
                             </tr>
                     {% endfor %}
-                        </table>
+                    </tbody>
+                </table>
+                </div>
+                <a href="/researchStaff/" class="button">Back to Orders</a>
             </div>
         </div>
     </div>
 </body>
-
 </html>

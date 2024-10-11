@@ -291,3 +291,64 @@ input[type="file"] {
     display: block;
     margin-top: 20px;
 }
+
+
+
+.order-details-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.order-details-container h2 {
+    color: #333;
+}
+
+.details, .chemicals {
+    margin-top: 20px;
+}
+
+.details div, .chemicals div {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.details strong {
+    color: #555;
+}
+
+.chemicals table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.chemicals th, .chemicals td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.chemicals th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.order-details-container .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ffd300;
+    color: #4c4949;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.order-details-container .button:hover {
+    background-color: #0056b3;
+    color: #fff;
+}

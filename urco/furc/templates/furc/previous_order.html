@@ -66,6 +66,10 @@
   background-color: #04AA6D;
   color: white;
 }
+        .orderidLink{
+        text-decoration: none;
+        color: blueviolet;;
+        }
     </style>
     <script src="{% static 'js/app.js' %}"></script>
     <script>
@@ -131,7 +135,7 @@
                             </tr>
                     {% for item in orders %}
                             <tr>
-                                <td>{{item.order_id}}</td>
+                                <td><a class="orderidLink" href="/orderView/{{item.order_id}}">{{item.order_id}}</a></td>
                                 <td>{{item.exp_name}}</td>
                                 <td>{{item.lab_id}}</td>
                                 <td>{{item.order_date}}</td>
