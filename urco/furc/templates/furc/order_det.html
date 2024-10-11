@@ -8,6 +8,10 @@
     <title>Research Staff Member Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
+        .content{
+         background-image: url('{% static 'images/order_view_bg.jpg' %}');
+         background-size: cover;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -123,13 +127,6 @@
     </header>
 
     <div class="container">
-
-        <div class="sidebar">
-            <button><a href="/researchStaff/">Main</a></button>
-            <button><a href="/new_order/">New Order</a></button>
-            <button><a href="/current_order/">Current Orders</a></button>
-            <button><a href="/previous_order/">Previous Orders</a></button>
-        </div>
         <div class="content">
             <div class="order-details-container">
                 <h2>Order Details</h2>
@@ -168,7 +165,7 @@
                     </tbody>
                 </table>
                 </div>
-                <a href="/researchStaff/" class="button">Back to Orders</a>
+                <a href="javascript:history.back()" class="button">Back to Orders</a>
             </div>
         </div>
     </div>

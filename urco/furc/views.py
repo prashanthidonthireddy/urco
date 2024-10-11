@@ -138,7 +138,7 @@ def highApprover(request):
     pending_order = Order.objects.filter(order_status='Pending higher approval')
     approved_order = Order.objects.filter(order_status='Approved by higher')
     rejected_order = Order.objects.filter(order_status='Rejected by higher')
-    params = {'pending_order':pending_order, 'approved_order':approved_order, 'rejected_order':rejected_order}
+    params = {'pending_order':pending_order, 'approved_order':approved_order, 'rejected_order':rejected_order, 'top_pending_order':top_pending_order, 'top_approved_order':top_approved_order, 'top_rejected_order':top_rejected_order }
     return render(request, 'furc/higherApprover.html/', params)
 
 def newOrder(request):
