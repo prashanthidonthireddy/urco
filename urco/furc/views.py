@@ -4,12 +4,13 @@ from lib2to3.fixes.fix_input import context
 import dateutil.utils
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, request
 # from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import json
-from .models import User, UserRole, Chemical, Order, OrderItem, Laboratory
+from .models import User, UserRole, Chemical, Order, OrderItem, Laboratory, StockItem, StorageLocation
 
 
 def index(request):
@@ -39,6 +40,10 @@ def logIn(request):
                 return redirect('supervisor')
             if str(role)=='Higher Approver':
                 return redirect('highApprover')
+            if str(role)=='Order Manager':
+                return redirect('orderManager')
+            if str(role)=='Stock Manager':
+                return redirect('stockManager')
             return redirect('/')
 
         else:
@@ -141,6 +146,13 @@ def highApprover(request):
     params = {'pending_order':pending_order, 'approved_order':approved_order, 'rejected_order':rejected_order, 'top_pending_order':top_pending_order, 'top_approved_order':top_approved_order, 'top_rejected_order':top_rejected_order }
     return render(request, 'furc/higherApprover.html/', params)
 
+def orderManager(request):
+    recent_orders = Order.objects.filter(order_status='Approved by higher')
+    params = {'recent_orders': recent_orders}
+    return render(request, 'furc/orderManager.html', params)
+
+def stockManager(request):
+    return render(request, 'furc/stockManager.html')
 def newOrder(request):
     return render(request, 'furc/newOrder.html')
 
@@ -229,7 +241,47 @@ def orderView(request, order_id):
     order = Order.objects.get(order_id=order_id)
     order_item = OrderItem.objects.filter(order_id=order)
     order_items = []
+    lab_stock=[]
     for i in order_item:
+        quantity=0
         order_items.append(i)
-    params = {'order': order, 'order_items': order_items}
+        chemical_id = i.chemical_id
+        lab_content_type = ContentType.objects.get_for_model(Laboratory)
+        storage = StorageLocation.objects.filter(content_type=lab_content_type, location_id=order.lab_id.lab_id).first()
+        labs = StockItem.objects.filter(storage_location=storage, chemical_id=chemical_id)
+        for l in labs:
+            quantity+=l.Current_stock
+        lab_stock.append(quantity)
+        sort_labs = StockItem.objects.filter(storage_location=storage, chemical_id=chemical_id).order_by('stock_id')
+    is_order_manager = request.user.role.role_id == 5
+    params = {'order': order, 'order_items': order_items,'is_order_manager': is_order_manager, 'lab_stock': lab_stock}
     return render(request, 'furc/order_det.html', params)
+
+def stockUpdate(request):
+    if request.method == 'POST':
+        order_id = request.POST['order_id']
+        update = request.POST['status']
+        order = Order.objects.get(order_id=order_id)
+        if update=='Approve':
+            order_item = OrderItem.objects.filter(order_id=order)
+            for i in order_item:
+                chemical_id = i.chemical_id
+                amount = i.required_amount
+                lab_content_type = ContentType.objects.get_for_model(Laboratory)
+                storage = StorageLocation.objects.filter(content_type=lab_content_type, location_id=order.lab_id.lab_id).first()
+                labs = StockItem.objects.filter(storage_location=storage, chemical_id=chemical_id)
+                for l in labs:
+                    if amount<=l.Current_stock:
+                        l.Current_stock-=amount
+                        break
+                    amount-=l.Current_stock
+
+            messages.info(request, ' Order is confirmed')
+            order.order_status = 'Ordered'
+            order.save()
+            return redirect('orderManager')
+        else:
+            messages.info(request, ' Order is rejected')
+            order.order_status = 'Rejected'
+            order.save()
+            return redirect('orderManager')

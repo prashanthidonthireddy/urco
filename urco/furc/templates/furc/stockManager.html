@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Higher Approver Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/app.js' %}"></script>
+    <script>
+        function closeAlert() {
+            document.querySelector('.alert-bar').style.display = 'none';
+        }
+    </script>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.customers td, .customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.customers tr:nth-child(even){background-color: #f2f2f2;}
+
+.customers tr:hover {background-color: #ddd;}
+
+.customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+    </style>
+</head>
+<body>
+{% for message in messages  %}
+
+   <div class="alert-bar">
+    <span class="alert-message">{{message}}</span>
+    <button class="close-btn" onclick="closeAlert()">x</button>
+</div>
+{% endfor %}
+    <header class="header">
+
+        <div class="logo">
+            <img src="{% static 'images/flinder-logo_white.png' %}" alt="Flinders University Logo" style="height: 50px;">
+        </div>
+
+        <div class="title">
+            <p class="headerTitle">Flinders Chemical Management System</p>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="welcome-message">
+            Hi, <span id="username">{{request.user}}</span>
+        </div>
+        <div class="sign-out">
+            <a href="/logout/" id="sign-out-link">Sign Out</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <button onclick="showSection('main')">Main</button>
+            <button onclick="showSection('new-order')">Unchecked Orders</button>
+            <button onclick="showSection('approved-orders')">Approved Orders</button>
+            <button onclick="showSection('rejected-orders')">Rejected Orders</button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <div id="main" class="content-section">
+                <h2>Overview</h2>
+                <h3>Recent New Orders</h3>
+                {% for i in pending_order %}
+                <form action="/orderStatusUpdate/" method="POST">
+                    {% csrf_token %}
+                    <div class="order-item">
+                        <p>{{i.order_id}}</p>
+                        <input type="text" name="order_id" value={{i.order_id}} hidden>
+                        <button type="submit" name="status" value="Approve" class="approve-btn">Approve<input type="text" name="order_status" value="approve" hidden></button>
+                        <button type="submit" name="status" value="Reject" class="reject-btn">Reject<input type="text" name="order_status" value="reject" hidden></button>
+                    </div>
+                    </form>
+                {% endfor %}
+                <h3>Recent Approved Orders</h3>
+                <table class="customers" style="border-radius:20px;">
+                            <tr>
+                                <th>Order Id:</th>
+                                <th>Exp. Name</th>
+                                <th>Lab</th>
+                                <th>Date</th>
+                                <th>status</th>
+                            </tr>
+                    {% for item in top_approved_order %}
+                            <tr>
+                                <td><a class="orderidLink" href="/orderView/{{item.order_id}}">{{item.order_id}}</a></td>
+                                <td>{{item.exp_name}}</td>
+                                <td>{{item.lab_id}}</td>
+                                <td>{{item.order_date}}</td>
+                                <td>{{item.order_status}}</td>
+                            </tr>
+                    {% endfor %}
+                        </table>
+                <h3>Recent Rejected Orders</h3>
+                <table class="customers" style="border-radius:20px;">
+                            <tr>
+                                <th>Order Id:</th>
+                                <th>Exp. Name</th>
+                                <th>Lab</th>
+                                <th>Date</th>
+                                <th>status</th>
+                            </tr>
+                    {% for item in top_rejected_order %}
+                            <tr>
+                                <td><a class="orderidLink" href="/orderView/{{item.order_id}}">{{item.order_id}}</a></td>
+                                <td>{{item.exp_name}}</td>
+                                <td>{{item.lab_id}}</td>
+                                <td>{{item.order_date}}</td>
+                                <td>{{item.order_status}}</td>
+                            </tr>
+                    {% endfor %}
+                        </table>
+            </div>
+
+            <!-- New Orders Tab Content -->
+            <div id="new-order" class="content-section" style="display:none;">
+                <h2>New Orders</h2>
+                {% for i in pending_order %}
+                <form action="/orderStatusUpdate/" method="POST">
+                    {% csrf_token %}
+                    <div class="order-item">
+                        <p>{{i.order_id}}</p>
+                        <input type="text" name="order_id" value={{i.order_id}} hidden>
+                        <button type="submit" name="status" value="Approve" class="approve-btn">Approve<input type="text" name="order_status" value="approve" hidden></button>
+                        <button type="submit" name="status" value="Reject" class="reject-btn">Reject<input type="text" name="order_status" value="reject" hidden></button>
+                    </div>
+                    </form>
+                {% endfor %}
+                <!-- Repeat the order-item div for more orders -->
+            </div>
+
+            <!-- Approved Orders Tab Content -->
+            <div id="approved-orders" class="content-section" style="display:none;">
+                <h2>Approved Orders</h2>
+                <table class="customers" style="border-radius:20px;">
+                            <tr>
+                                <th>Order Id:</th>
+                                <th>Exp. Name</th>
+                                <th>Lab</th>
+                                <th>Date</th>
+                                <th>status</th>
+                            </tr>
+                    {% for item in approved_order %}
+                            <tr>
+                                <td><a class="orderidLink" href="/orderView/{{item.order_id}}">{{item.order_id}}</a></td>
+                                <td>{{item.exp_name}}</td>
+                                <td>{{item.lab_id}}</td>
+                                <td>{{item.order_date}}</td>
+                                <td>{{item.order_status}}</td>
+                            </tr>
+                    {% endfor %}
+                        </table>
+                <!-- Approved orders content goes here -->
+            </div>
+
+            <!-- Rejected Orders Tab Content -->
+            <div id="rejected-orders" class="content-section" style="display:none;">
+                <h2>Rejected Orders</h2>
+<table class="customers" style="border-radius:20px;">
+                            <tr>
+                                <th>Order Id:</th>
+                                <th>Exp. Name</th>
+                                <th>Lab</th>
+                                <th>Date</th>
+                                <th>status</th>
+                            </tr>
+                    {% for item in rejected_order %}
+                            <tr>
+                                <td><a class="orderidLink" href="/orderView/{{item.order_id}}">{{item.order_id}}</a></td>
+                                <td>{{item.exp_name}}</td>
+                                <td>{{item.lab_id}}</td>
+                                <td>{{item.order_date}}</td>
+                                <td>{{item.order_status}}</td>
+                            </tr>
+                    {% endfor %}
+                        </table>                <!-- Rejected orders content goes here -->
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

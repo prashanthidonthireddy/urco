@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Research Staff Member Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
     <style>
         .content{
          background-image: url('{% static 'images/order_view_bg.jpg' %}');
@@ -81,6 +82,19 @@
         color: #0f64c1;
     font-weight: bold;
         }
+        .checkStock{
+        margin-left:10px;
+
+        }
+        .popup-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .popup-content {
+            margin-top: 10px;
+        }
     </style>
     <script src="{% static 'js/app.js' %}"></script>
     <script>
@@ -96,6 +110,13 @@
             function closeChemicalModal() {
                 document.getElementById("chemicalModal").style.display = "none";
             }
+        function showStockModal() {
+            document.getElementById("stockModal").style.display = "block";
+        }
+
+        function closeStockModal() {
+            document.getElementById("stockModal").style.display = "none";
+        }
     </script>
 </head>
 
@@ -133,7 +154,8 @@
                 <div class="details">
                 <div><strong>Order ID:</strong> <span class="order_details" id="order-id">{{order.order_id}}</span></div>
                 <div><strong>Experiment Name:</strong> <span class="order_details" id="experiment-name">{{order.exp_name}}</span></div>
-                <div><strong>Lab ID:</strong> <span class="order_details" id="lab-id">{{order.lab_id}}</span></div>
+                <div><strong>Lab ID:</strong> <span class="order_details" id="lab-id">{{order.lab_id}}</span>{% if is_order_manager %}<button class="checkStock" onclick="showStockModal()">
+                    Check Stock</button>{% endif %}</div>
                 <div><strong>Order Date:</strong>  <span class="order_details" id="order-date">{{order.order_date}}</span></div>
                 <div><strong>Updated Date:</strong> <span class="order_details" id="updated-date">{{order.updated_date}} </span></div>
                 <div><strong>Order Status:</strong> <span class="order_details" id="order-status">{{order.order_status}}</span></div>
@@ -165,8 +187,42 @@
                     </tbody>
                 </table>
                 </div>
+                <div class="stockUpdate">
+                {% if is_order_manager %}
+                <form action="/stockUpdate/" method="POST">
+                    {% csrf_token %}
+                    <input type="text" name="order_id" value={{order.order_id}} hidden>
+                    <button type="submit" name="status" value="Approve" class="approve-btn">Confirm<input type="text" name="order_status" value="approve" hidden></button>
+                    <button type="submit" name="status" value="Reject" class="reject-btn">Reject<input type="text" name="order_status" value="reject" hidden></button>
+                </form>
+                {% endif %}
+                    </div>
                 <a href="javascript:history.back()" class="button">Back to Orders</a>
             </div>
+        </div>
+    </div>
+<div id="stockModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeStockModal()">&times;</span>
+            <div class="popup-header">Stock Information</div>
+
+            <div class="chemicals">
+                <table>
+<tr>{% for chemical in order_items %}
+                        <th>{{chemical.chemical_id.chemical_id}}</th>
+                        {% endfor %}
+                    </tr>
+                <tbody>
+                <tr>
+                {% for item in lab_stock %}
+
+                                <td>{{item}}</td>
+                    {% endfor %}
+                </tr>
+                </tbody>
+                    </table>
+            </div>
+
         </div>
     </div>
 </body>

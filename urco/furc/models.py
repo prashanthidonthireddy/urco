@@ -8,7 +8,8 @@ import os
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+
 
 class UserRole(models.Model):
     role_id = models.IntegerField(primary_key=True)
@@ -53,6 +54,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+class StorageLocation(models.Model):
+    storage_location_id = models.CharField(primary_key=True, max_length=10)
+    storage_location_name = models.CharField(max_length=50)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to={'model__in': ('laboratory', 'researchcenter', 'institute')})
+    location_id = models.CharField(max_length=10)
+    location_object = GenericForeignKey('content_type', 'location_id')
+    max_limit = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.storage_location_id} - {self.storage_location_name}'
+
 class Institute(models.Model):
     institute_id = models.IntegerField(primary_key=True)
     institute_name = models.CharField(max_length=255)
@@ -72,19 +84,9 @@ class Laboratory(models.Model):
     lab_id = models.CharField(primary_key=True, max_length=10)
     lab_name = models.CharField(max_length=50)
     center_id = models.ForeignKey(ResearchCenter, on_delete=models.CASCADE, null=True, blank=True)
-
+    storage_locations = GenericRelation(StorageLocation)
     def __str__(self):
         return f'{self.lab_id} - {self.lab_name}'
-
-class StorageLocation(models.Model):
-    storage_location_id = models.CharField(primary_key=True, max_length=10)
-    storage_location_name = models.CharField(max_length=50)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to={'model__in': ('laboratory', 'researchcenter', 'institute')})
-    location_id = models.CharField(max_length=10)
-    location_object = GenericForeignKey('content_type', 'location_id')
-
-    def __str__(self):
-        return f'{self.storage_location_id} - {self.storage_location_name}'
 
 class StorageLevel(models.Model):
     storage_level_id = models.IntegerField(primary_key=True)
@@ -127,6 +129,7 @@ ORDER_STATUS = {
     ('Stored', 'Stored'),
     ('Delivered', 'Delivered'),
     ('Closed', 'Closed'),
+    ('Rejected', 'Rejected'),
     ('Rejected by supervisor', 'Rejected by supervisor'),
     ('Rejected by higher', 'Rejected by higher')
 }

@@ -344,7 +344,7 @@ input[type="file"] {
     color: #4c4949;
     text-decoration: none;
     border-radius: 5px;
-    margin-top: 20px;
+    margin-top: 10px;
     text-align: center;
 }
 
@@ -357,3 +357,17 @@ input[type="file"] {
         text-decoration: none;
         color: blueviolet;
         }
+
+.approve-btn{
+    border-radius: 20px;
+    background-color: #b900ff;
+}
+
+.reject-btn{
+    border-radius: 20px;
+    background-color: #de0036;
+}
+
+.stockUpdate{
+margin-top:10px;
+}
